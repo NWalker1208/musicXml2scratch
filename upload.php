@@ -27,6 +27,9 @@
 		//It's something else
 		die("Invalid file");
 	}
+	
 	//Files checked, content read. Now convert!
+	mkdir($path . "/txt");
+	require_once("lib/drumsConvert.php");
 	require_once("lib/convert.php");
 ?>
