@@ -16,68 +16,75 @@
 		die("Invalid file");
 	}
 
+	$tones = array();
 	//Read the notes
 	$instruments = 0;
 	foreach($xml -> part as $instrument) {
 		//Loop through this instrument
-		$instruments++;
-		foreach($instrument -> measure as $measure)	{
-			//Clear note's last x position and last staff
-			$last_x_pos = 0;
-			$last_staff = 1;
-			
-			//Loop through notes
-			foreach($measure -> note as $note) {
-				//We need it
-				$length	= (string) $note -> duration;
-				$staff = isset($note -> staff) ? intval($note -> staff) : 1;
-				if ($last_staff !== $staff) { $last_x_pos = 0; $last_staff = $staff; } // If in one measure are 2 staffs
+		$id = $instrument -> attributes();
+		$id = (string) $id[0];
+		
+		if (isset($part_drums) && !in_array($id, $part_drums) || !isset($part_drums)) {
+			$instruments++;
+			foreach($instrument -> measure as $measure)	{
+				//Clear note's last x position and last staff
+				$last_x_pos = 0;
+				$last_staff = 1;
 				
-				//Check if note exists
-				if (isset($note -> pitch)) {
-					//This is a note
-					$step	= (string) $note -> pitch -> step;
-					$alter	= (string) $note -> pitch -> alter or "0";
-					$value	= intval($note -> pitch -> octave) * 12 + intval($t[$step]) + intval($alter);
+				//Loop through notes
+				foreach($measure -> note as $note) {
+					//We need it
+					$length	= (string) $note -> duration;
+					$staff = isset($note -> staff) ? intval($note -> staff) : 1;
+					if ($last_staff !== $staff) { $last_x_pos = 0; $last_staff = $staff; } // If in one measure are 2 staffs
 					
-					//Does note have attributes?
-					if ($note -> attributes() -> count() > 1) {
-						//Exporting attributes to variable
-						$attr = $note -> attributes();
+					//Check if note exists
+					if (isset($note -> pitch)) {
+						//This is a note
+						$step	= (string) $note -> pitch -> step;
+						$alter	= (string) $note -> pitch -> alter or "0";
+						$value	= intval($note -> pitch -> octave) * 12 + intval($t[$step]) + intval($alter);
+						
+						//Does note have attributes?
+						if ($note -> attributes() -> count() > 1) {
+							//Exporting attributes to variable
+							$attr = $note -> attributes();
+						}
 					}
-				}
-				
-				//Inserting notes
-				if(isset($note -> rest)) {
-					//This is a rest
-					//Insert
-					$tones[$instruments][$staff][] = array(0, $length);
 					
-					//Rest doesn't have attributes
-					$last_x_pos = 0;
-				}
-				elseif(isset($attr) && floatval($attr[0]) == floatval($last_x_pos))	{
-					//Multi-notes
-					//Get last element of array
-					$lp = isset($tones[$instruments][$staff]) ? count($tones[$instruments][$staff]) - 1 : 0;
-					
-					//Insert note
-					$tmp_array = array($value, $length, $step, $note -> pitch -> octave);
-					$length = count($tones[$instruments][$staff][$lp]); // Error fixed!
-					for ($i = 0; $i < $length; $i++) {
-						$tones[$instruments][$staff][$lp][$i] = $tones[$instruments][$staff][$lp][$i].";".$tmp_array[$i];
+					//Inserting notes
+					if(isset($note -> rest)) {
+						//This is a rest
+						//Insert
+						$tones[$instruments][$staff][] = array(0, $length);
+						
+						//Rest doesn't have attributes
+						$last_x_pos = 0;
 					}
-				}
-				elseif(isset($note -> pitch)) {
-					//Insert note
-					$tones[$instruments][$staff][] = array($value, $length, $step, $note -> pitch -> octave);
-				}
-				
-				//Set note's last x position
-				if (isset($attr)) {
-					$last_x_pos = $attr[0];
-				} else {
-					$last_x_pos = 0;
+					elseif(isset($attr) && floatval($attr[0]) == floatval($last_x_pos))	{
+						//Multi-notes
+						//Get last element of array
+						$lp = isset($tones[$instruments][$staff]) ? count($tones[$instruments][$staff]) - 1 : 0;
+						
+						//Insert note
+						$tmp_array = array($value, $length, $step, $note -> pitch -> octave);
+						if (!isset($tones[$instruments])) { $instruments--; } // Error fixed!
+						$length = count($tones[$instruments][$staff][$lp]);
+						for ($i = 0; $i < $length; $i++) {
+							$tones[$instruments][$staff][$lp][$i] = $tones[$instruments][$staff][$lp][$i].";".$tmp_array[$i];
+						}
+					}
+					elseif(isset($note -> pitch)) {
+						//Insert note
+						$tones[$instruments][$staff][] = array($value, $length, $step, $note -> pitch -> octave);
+					}
+					
+					//Set note's last x position
+					if (isset($attr)) {
+						$last_x_pos = $attr[0];
+					} else {
+						$last_x_pos = 0;
+					}
 				}
 			}
 		}
@@ -85,7 +92,6 @@
 
 	//Create tmpput
 	$files = array();
-	mkdir($path . "/txt");
 	for($i = 1; $i <= $instruments; $i++)	{
 		for($x = 1; $x <= count($tones[$i]); $x++) {
 			
@@ -114,10 +120,16 @@
 		}
 	}
 	
+	if (file_exists($path . "/txt/drumsInstruments.txt")) {
+		
+		$out -> addFile($path . "/txt/drumsInstruments.txt", "drumsInstruments.txt");
+		$out -> addFile($path . "/txt/drumsLengths.txt", "drumsLengths.txt");
+	}
+	
 	$out -> close();
 	
 	//Check if is any error
-	if (count(error_get_last()) > 0) { die("<br>Please report this errors to <a href=\"https://scratch.mit.edu/users/SzAmmi\">@SzAmmi</a> or <a href=\"https://scratch.mit.edu/users/webdesigner97\">@webdesigner97</a>"); }
+	if (count(error_get_last()) > 0) { die("<br>Please report this errors to <a href=\"https://scratch.mit.edu/users/SzAmmi\">@SzAmmi</a> or <a href=\"https://scratch.mit.edu/users/webdesigner97\">@webdesigner97</a>."); }
 	
 	//Download
 	header("Content-disposition: attachment; filename=lists.zip");
