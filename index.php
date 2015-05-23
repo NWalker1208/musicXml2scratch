@@ -6,11 +6,12 @@
 		<script src="progress.js"></script>
 	</head>
 	<body>
-		<h1>Convert musicXML into scratch lists</h1>
+		<h1>Convert musicXML into Scratch lists</h1>
 		<form action="upload.php" method="post" enctype="multipart/form-data">
 			<input type="file" id="mxlxml" name="mxlxml" accept="application/vnd.recordare.musicxml|application/vnd.recordare.musicxml+xml" />
 			<input type="submit" value="Start" />
 		</form>
+		<br />
 		<progress id="upload" value="0"></progress>
 		<div id="file">
 			<table>
