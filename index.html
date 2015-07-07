@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>musicXML converter</title>
+		<script src="jquery.2.1.1.min.js"></script>
+		<script src="progress.js"></script>
+		<script src="jszip.min.js"></script>
+		<script src="FileSaver.js"></script>
+		<script src="drumsConvert.js"></script>
+		<script src="convert.js"></script>
+		<script>
+		var fileContent;
+		
+		function handleFile(file) {
+			if (file) {
+				var reader = new FileReader();
+				reader.readAsBinaryString(file);
+				reader.onload = function (evt) {
+					fileContent = evt.target.result;
+				}
+				reader.onerror = function (evt) {
+					fileContent = null;
+					alert("Error while reading file!");
+				}
+			}
+		}
+		
+		function start() {
+			if (fileContent == null) {
+				alert("File empty!");
+			} else {
+				var new_zip = new JSZip();
+				// more files !
+				new_zip.load(fileContent);
+				
+				lgFile = Object.keys(new_zip.files)[1];
+				xml = new_zip.file(lgFile).asText();
+				
+				//Files checked, content read. Now convert!
+				drumsConvert();
+				convert();
+			}
+		}
+		
+		function checkErrors() {
+			if (files.length == 0) { alert("Error! We know about all errors. We'll try to fix those errors."); }
+		}
+		</script>
+	</head>
+	<body>
+		<h1>Convert musicXML into Scratch lists</h1>
+		<div id="form">
+			<input type="file" id="mxlxml" name="mxlxml" accept="application/vnd.recordare.musicxml|application/vnd.recordare.musicxml+xml" onchange="handleFile(this.files[0])" />
+			<input type="submit" value="Start" onclick="start(); checkErrors();" />
+		</div>
+		<br />
+		<progress id="progress" value="0"></progress>
+		<div id="file">
+			<table>
+				<tr>
+					<td>Name:</td>
+					<td id="name">Nothing selected</td>
+				</tr>
+				<tr>
+					<td>Size:</td>
+					<td id="size">Nothing selected</td>
+				</tr>
+				<tr>
+					<td>Type:</td>
+					<td id="mime">Nothing selected</td>
+				</tr>
+			</table>
+		</div>
+		<span style="font-size: 12px; color: gray;">We know about all errors. So, if you are uploading drums it may fail.</span>
+	</body>
+</html>
