@@ -8,9 +8,7 @@ whatever-like game.
 This project is **stable**. Found a bug? Visit the [Issues].
 
 ##Convert a musicXML file
-    Just use the interface on the index.php
-    First, download XAMPP and upload these files to path/to/xampp/htdocs/
+    Just use the interface on the index.html
     
 ## Release
-v. 1.1 - drums update, bug fixes  
 v. 1.0 - release stable version
