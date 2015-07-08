@@ -28,7 +28,7 @@
 		function start() {
 			if (fileContent == null) {
 				alert("File empty!");
-			} else if ($("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml" || $("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml+xml") {
+			} else if ($("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml" && $("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml+xml") {
 				alert("Your file isn't a musicxml file!");
 			} else {
 				var new_zip = new JSZip();
@@ -73,6 +73,6 @@
 				</tr>
 			</table>
 		</div>
-		<span style="font-size: 12px; color: gray;">We know about all errors. So, if you are uploading drums it may fail.</span>
+		<span style="font-size: 12px; color: gray;">Note: our drums database isn't complete. So, if you are uploading drums it may fail.</span>
 	</body>
 </html>
