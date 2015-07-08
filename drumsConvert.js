@@ -1,6 +1,25 @@
+// Useful functions
 function whatever(val, array) {
 	for (key in array) {
 		if (array[key].indexOf(val) != "-1") return [key, array[key].indexOf(val)];
+	}
+	return false;
+}
+
+function ObjectIndexOf(elt, object) {
+	i = 0;
+	for (value in object) {
+		if (value == elt) return i;
+		i++;
+	}
+	return -1;
+}
+
+function INCAEOD(instrument) { // InstrumentNameContainsAnyElementOfDrums = INCAEOD, we can use it instead of "whatever" function
+	i = 0;
+	for (drum in drums) {
+		if (instrument.contains(drum)) { return [drum, i]; }
+		i++;
 	}
 	return false;
 }
@@ -10,9 +29,11 @@ function drumsConvert() {
 //Initialize basic stuff
 drums = {"Acoustic Bass Drum": [2, ""], 
 		"Bass Drum": [2, ""], 
+		"Bass Drums": [2, ""], 
 		"Side Stick": [3, ""], 
-		"Snare (Acoustic]": [1, ""], 
-		"Snare (Electric]": [1, ""], 
+		"Snare (Acoustic)": [1, ""], 
+		"Acoustic Snare": [1, ""], 
+		"Electric Snare": [1, ""], 
 										"Tom 5": [0, ""], 
 		"Hi-Hat Closed": [6, ""], 
 		//"Tom 4": [0, ""], 
@@ -25,7 +46,8 @@ drums = {"Acoustic Bass Drum": [2, ""],
 										"Tom": [0, ""], 
 		"Ride": ["R", ""], 
 		"China": ["C", ""], 
-		"Ride (Bell]": ["RB", ""], 
+		"Ride (Bell)": ["RB", ""], 
+		"Bell Ride": ["RB", ""], 
 		"Tambourine": [7, ""], 
 		"open high conga": [14, ""], 
 		"low conga": [14, ""], 
@@ -45,7 +67,8 @@ drums = {"Acoustic Bass Drum": [2, ""],
 		"Closed Cuica": [11, ""], 
 		"Cuica Open": [11, ""], 
 		"Cuica Closed": [11, ""], 
-		"Crash Cymbal": [4, ""]
+		"Crash Cymbal": [4, ""],
+		"Cymbal": [4, ""]
 };
 				
 part_drums = [];
@@ -54,67 +77,72 @@ part_drums = [];
 for (score_part of $(xml).find("part-list score-part").toArray()) {
 	attr = $(score_part)[0].attributes;
 	part = attr[0].value;
-	if ($("part-name", score_part)[0].innerHTML == "Drumset") { part_drums.push(part); }
+	part_name = $("part-name", score_part)[0].innerHTML;
+	if (ObjectIndexOf(part_name, drums) > -1 || part_name == "Drumset") { part_drums.push(part); }
 	
 		si = $(score_part).find("score-instrument").toArray();
 		for (score_instrument of si) {
 			attr2 = $(score_instrument)[0].attributes;
 			name = $("instrument-name", score_instrument)[0].innerHTML;
-			if (typeof(drums[name]) !== "undefined") drums[name][1] = attr2[0].value;
+			if (INCAEOD(name)) drums[INCAEOD(name)[0]][1] = attr2[0].value;
 		}
 }
 
 tones = [];
+instruments = 0;
 
 //Read the beats
 for (instrument of $(xml).find("part").toArray()) {
 	//Loop through this instrument
-	notes = -1;
+	instruments++;
 	for (measure of $(instrument).find("measure").toArray()) {
+		last_x_pos = 0;
+		
 		//Loop through notes
 		for (note of $(measure).find("note").toArray()) {
 			
 			if ($(note).find("instrument").length > 0) {
 				attr = $(note).find("instrument")[0].attributes;
-				if (whatever(attr[0], drums)) {
+				
+				if (whatever(attr[0].value, drums)) {
 					//We need it
 					length = $(note).find("duration")[0].innerHTML;
-					notes++;
+					attr2 = $(note)[0].attributes;
 					
 					//Inserting notes
-					if (tones.length - 1 < notes) { tones.push(["",""]); }
+					if (typeof(tones[instruments]) === "undefined") { tones[instruments] = ["", ""]; }
+					
 					if($(note).find("rest").length > 0) {
 						//This is a rest
 						//Insert
-						tones[notes] = [0, length];
+						tones[instruments][0] += 0 + "\n";
+						tones[instruments][1] += length + "\n";
 					}
 					else {
 						//Insert note
-						whatever = whatever(attr[0].value, drums);
-						chr = tones[notes][0].length > 0 ? ";" : "";
-						tones[notes][0] += chr.drums[whatever[0]][0];
-						tones[notes][1] += chr.length;
-						//tones[notes] = [drums[whatever[0]][0], length];
+						we = whatever(attr[0].value, drums);
+						
+						tones[instruments][0] += drums[we[0]][0] + "\n";
+						tones[instruments][1] += length + "\n";
 					}
+					
 				}
 			}
 		}
 	}
 }
 
-
 //Create tmpput
 files = {};
 if (tones.length > 0) {
-	// Add files if don't exist
-	instrumentsFile = "drumsInstruments.txt";
-	lengthsFile = "drumsLengths.txt";
-	if (typeof(files[instrumentsFile]) === "undefined") { files[instrumentsFile] = ""; }
-	if (typeof(files[lengthsFile]) === "undefined") { files[lengthsFile] = ""; }
-	
 	// Add notes to files
-	for(i = 0; i < tones.length; i++)	{
-		file[instrumentsFile] = tones[i][0] + "\n";
+	for(i = 1; i < tones.length; i++)	{
+		// Add files
+		instrumentsFile = "drumsInstruments" + i + ".txt";
+		lengthsFile = "drumsLengths" + i + ".txt";
+		
+		files[instrumentsFile] = tones[i][0];
+		files[lengthsFile] = tones[i][1];
 	}
 }
 
