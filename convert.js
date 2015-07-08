@@ -29,58 +29,62 @@ for (partValue of part) {
 			
 			note = $("note", measure).toArray();
 			for (noteValue of note) {
-				length = $("duration", noteValue)[0].innerHTML;
-				staff = ($("staff", noteValue).length > 0) ? $("staff", noteValue)[0].innerHTML : 1;
-				if (last_staff !== staff) { last_x_pos = 0; last_staff = staff; } // If in one measure are 2 staffs
+				instrument = $(note).find("instrument")[0].attributes[0].value;
 				
-				//Check if note exists
-				if ($("pitch", noteValue).length > 0) {
-					step = $("pitch step", noteValue)[0].innerHTML;
-					alter = ($("pitch alter", noteValue).length > 0) ? $("pitch alter", noteValue)[0].innerHTML : "0";
-					value = $("pitch octave", noteValue)[0].innerHTML * 12 + t[step] + Number(alter);
+				if (!whatever(instrument, drums)) {
+					length = $("duration", noteValue)[0].innerHTML;
+					staff = ($("staff", noteValue).length > 0) ? $("staff", noteValue)[0].innerHTML : 1;
+					if (last_staff !== staff) { last_x_pos = 0; last_staff = staff; } // If in one measure are 2 staffs
 					
-					//Does note have attributes?
-					if ($(noteValue)[0].attributes.length > 1) {
-						//Exporting attributes to variable
-						attr = $(noteValue)[0].attributes;
+					//Check if note exists
+					if ($("pitch", noteValue).length > 0) {
+						step = $("pitch step", noteValue)[0].innerHTML;
+						alter = ($("pitch alter", noteValue).length > 0) ? $("pitch alter", noteValue)[0].innerHTML : "0";
+						value = $("pitch octave", noteValue)[0].innerHTML * 12 + t[step] + Number(alter);
+						
+						//Does note have attributes?
+						if ($(noteValue)[0].attributes.length > 1) {
+							//Exporting attributes to variable
+							attr = $(noteValue)[0].attributes;
+						}
+						
+						// We need to create some elements manually.
+						if (typeof(tones[instruments][staff]) === "undefined") { tones[instruments][staff] = []; }
+						
+						//Inserting notes
+						if($("rest", noteValue).length > 0) {
+							//This is a rest
+							//Insert
+							tones[instruments][staff].push([0, length]);
+							
+							//Rest doesn't have attributes
+							last_x_pos = 0;
+						}
+						else if(typeof(attr) && attr[0].value == last_x_pos)	{
+							//Multi-notes
+							//Get last element of array
+							lp = typeof(tones[instruments][staff]) ? tones[instruments][staff].length - 1 : 0;
+							
+							//Insert note
+							tmp_array = [value, length, step, $("pitch octave", noteValue)[0].innerHTML];
+							if (typeof(tones[instruments]) === "undefined") { instruments--; } // Error fixed!
+							length = tones[instruments][staff][lp].length;
+							for (i = 0; i < length; i++) {
+								tones[instruments][staff][lp][i] = tones[instruments][staff][lp][i] + ";" + tmp_array[i];
+							}
+						}
+						else if($("pitch", noteValue).length > 0) {
+							//Insert note
+							tones[instruments][staff].push([value, length, step, $("pitch octave", noteValue)[0].innerHTML]);
+						}
+						
+						//Set note's last x position
+						if (typeof(attr) !== undefined) {
+							last_x_pos = attr[0].value;
+						} else {
+							last_x_pos = 0;
+						}
 					}
-				}
-				
-				// We need to create some elements manually.
-				if (typeof(tones[instruments][staff]) === "undefined") { tones[instruments][staff] = []; }
-				
-				//Inserting notes
-				if($("rest", noteValue).length > 0) {
-					//This is a rest
-					//Insert
-					tones[instruments][staff].push([0, length]);
-					
-					//Rest doesn't have attributes
-					last_x_pos = 0;
-				}
-				else if(typeof(attr) && attr[0].value == last_x_pos)	{
-					//Multi-notes
-					//Get last element of array
-					lp = typeof(tones[instruments][staff]) ? tones[instruments][staff].length - 1 : 0;
-					
-					//Insert note
-					tmp_array = [value, length, step, $("pitch octave", noteValue)[0].innerHTML];
-					if (typeof(tones[instruments]) === "undefined") { instruments--; } // Error fixed!
-					length = tones[instruments][staff][lp].length;
-					for (i = 0; i < length; i++) {
-						tones[instruments][staff][lp][i] = tones[instruments][staff][lp][i] + ";" + tmp_array[i];
-					}
-				}
-				else if($("pitch", noteValue).length > 0) {
-					//Insert note
-					tones[instruments][staff].push([value, length, step, $("pitch octave", noteValue)[0].innerHTML]);
-				}
-				
-				//Set note's last x position
-				if (typeof(attr) !== undefined) {
-					last_x_pos = attr[0].value;
-				} else {
-					last_x_pos = 0;
 				}
 			}
 		}
