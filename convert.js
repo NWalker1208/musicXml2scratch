@@ -29,7 +29,7 @@ for (partValue of part) {
 			
 			note = $("note", measure).toArray();
 			for (noteValue of note) {
-				instrument = $(noteValue).find("instrument")[0].attributes[0].value;
+				instrument = typeof($(noteValue).find("instrument")[0]) == "undefined" ? "Piano" : $(noteValue).find("instrument")[0].attributes[0].value;
 				
 				if (!whatever(instrument, drums)) {
 					length = $("duration", noteValue)[0].innerHTML;
