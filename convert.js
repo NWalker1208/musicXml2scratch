@@ -29,7 +29,7 @@ function convert() {
 					if (last_staff !== staff) { last_x_pos = 0; last_staff = staff; } // If in one measure are 2 staffs
 					
 					//Check if note exists
-					if ($("pitch", noteValue).length > 0) {
+					if ($("pitch", noteValue).length > 0 || $("rest", noteValue).length > 0) {
 						// This is a note
 						step = $("pitch step", noteValue).html();
 						alter = ($("pitch alter", noteValue).length > 0) ? $("pitch alter", noteValue).html() : "0";
@@ -53,7 +53,7 @@ function convert() {
 							//Rest doesn't have attributes
 							last_x_pos = 0;
 						}
-						else if(typeof(attr2) !== "undefined" && attr2[0].value == last_x_pos)	{
+						else if(typeof(attr2) !== "undefined" && attr2["default-x"].value == last_x_pos)	{
 							//Multi-notes
 							//Get last element of array
 							lp = typeof(tones[instruments][staff]) !== "undefined" ? tones[instruments][staff].length - 1 : 0;
@@ -82,6 +82,7 @@ function convert() {
 			});
 		}
 	});
+	
 	//Create tmpput
 	// files = {};
 	for (i = 1; i <= instruments; i++) {
