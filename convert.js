@@ -38,7 +38,7 @@ function convert() {
 						//Does note have attributes?
 						if ($(noteValue)[0].attributes.length > 1) {
 							//Exporting attributes to variable
-							attr = $(noteValue)[0].attributes;
+							attr2 = $(noteValue)[0].attributes;
 						}
 						
 						// We need to create some elements manually.
@@ -53,7 +53,7 @@ function convert() {
 							//Rest doesn't have attributes
 							last_x_pos = 0;
 						}
-						else if(typeof(attr) !== "undefined" && attr[0].value == last_x_pos)	{
+						else if(typeof(attr2) !== "undefined" && attr2[0].value == last_x_pos)	{
 							//Multi-notes
 							//Get last element of array
 							lp = typeof(tones[instruments][staff]) !== "undefined" ? tones[instruments][staff].length - 1 : 0;
@@ -72,8 +72,8 @@ function convert() {
 						}
 						
 						//Set note's last x position
-						if (typeof(attr) !== "undefined") {
-							last_x_pos = attr["default-x"].value;
+						if (typeof(attr2) !== "undefined") {
+							last_x_pos = attr2["default-x"].value;
 						} else {
 							last_x_pos = 0;
 						}
