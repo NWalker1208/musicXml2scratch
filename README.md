@@ -1,5 +1,7 @@
 #musicXml2scratch
 
+**PLEASE NOTE: PHP VERSION ISN'T SUPPORTED**
+
 musicXml2scratch (created by [webdesigner97](https://github.com/webdesigner97) and continued by [SzAmmi](https://github.com/SzAmmi)) converts [musicXML](http://www.musicxml.org/) files
 into text files which can be imported into a [Scratch project](https://scratch.mit.edu/projects/61176034/)
 from where they can just be played to your audience or even build a Synthesia, Guitar Hero,
