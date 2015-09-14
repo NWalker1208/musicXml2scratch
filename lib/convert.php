@@ -39,51 +39,51 @@
 					if ($last_staff !== $staff) { $last_x_pos = 0; $last_staff = $staff; } // If in one measure are 2 staffs
 					
 					//Check if note exists
-					if (isset($note -> pitch)) {
+					if (isset($note -> pitch) || isset($note -> rest)) {
 						//This is a note
 						$step	= (string) $note -> pitch -> step;
 						$alter	= (string) $note -> pitch -> alter or "0";
-						$value	= intval($note -> pitch -> octave) * 12 + intval($t[$step]) + intval($alter);
+						$value	= isset($note -> pitch) ? intval($note -> pitch -> octave) * 12 + intval($t[$step]) + intval($alter) : 0;
 						
 						//Does note have attributes?
 						if ($note -> attributes() -> count() > 1) {
 							//Exporting attributes to variable
 							$attr = $note -> attributes();
 						}
-					}
-					
-					//Inserting notes
-					if(isset($note -> rest)) {
-						//This is a rest
-						//Insert
-						$tones[$instruments][$staff][] = array(0, $length);
 						
-						//Rest doesn't have attributes
-						$last_x_pos = 0;
-					}
-					elseif(isset($attr) && floatval($attr[0]) == floatval($last_x_pos))	{
-						//Multi-notes
-						//Get last element of array
-						$lp = isset($tones[$instruments][$staff]) ? count($tones[$instruments][$staff]) - 1 : 0;
-						
-						//Insert note
-						$tmp_array = array($value, $length, $step, $note -> pitch -> octave);
-						if (!isset($tones[$instruments])) { $instruments--; } // Error fixed!
-						$length = count($tones[$instruments][$staff][$lp]);
-						for ($i = 0; $i < $length; $i++) {
-							$tones[$instruments][$staff][$lp][$i] = $tones[$instruments][$staff][$lp][$i].";".$tmp_array[$i];
+						//Inserting notes
+						if(isset($note -> rest)) {
+							//This is a rest
+							//Insert
+							$tones[$instruments][$staff][] = array(0, $length);
+							
+							//Rest doesn't have attributes
+							$last_x_pos = 0;
 						}
-					}
-					elseif(isset($note -> pitch)) {
-						//Insert note
-						$tones[$instruments][$staff][] = array($value, $length, $step, $note -> pitch -> octave);
-					}
-					
-					//Set note's last x position
-					if (isset($attr)) {
-						$last_x_pos = $attr[0];
-					} else {
-						$last_x_pos = 0;
+						elseif(isset($attr) && floatval($attr[0]) == floatval($last_x_pos))	{
+							//Multi-notes
+							//Get last element of array
+							$lp = isset($tones[$instruments][$staff]) ? count($tones[$instruments][$staff]) - 1 : 0;
+							
+							//Insert note
+							$tmp_array = array($value, $length, $step, $note -> pitch -> octave);
+							if (!isset($tones[$instruments])) { $instruments--; } // Error fixed!
+							$length = count($tones[$instruments][$staff][$lp]);
+							for ($i = 0; $i < $length; $i++) {
+								$tones[$instruments][$staff][$lp][$i] = $tones[$instruments][$staff][$lp][$i].";".$tmp_array[$i];
+							}
+						}
+						elseif(isset($note -> pitch)) {
+							//Insert note
+							$tones[$instruments][$staff][] = array($value, $length, $step, $note -> pitch -> octave);
+						}
+						
+						//Set note's last x position
+						if (isset($attr)) {
+							$last_x_pos = $attr[0];
+						} else {
+							$last_x_pos = 0;
+						}
 					}
 				}
 			}
