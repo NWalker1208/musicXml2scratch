@@ -10,7 +10,8 @@ whatever-like game.
 This project is **stable**. Found a bug? Visit the [Issues].
 
 ##Convert a musicXML file
-    Just go to http://szammi.github.io/musicXml2scratch/ or use the interface on the index.html
+    Just go to http://szammi.github.io/musicXml2scratch/
+    or use the interface on the index.html
     
 ## Release
 **v. 1.1 (13th Semptember 2015)** - bug fixes and improved drums
