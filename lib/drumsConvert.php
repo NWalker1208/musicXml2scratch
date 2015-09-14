@@ -8,7 +8,8 @@
 																	"Tom 5" => array(0, ""), 
 					"Hi-Hat Closed" => array(6, ""), 
 					//"Tom 4" => array(0, ""), 
-																	"Hi-Hat Pedal" => array(0, ""), 
+																	"Hi-Hat Pedal" => array(5, ""), 
+																	"Pedale Hi-Hat" => array(5, ""), 
 					"Tom 3" => array("T3", ""), 
 					"Hi-Hat Open" => array(5, ""), 
 					"Tom 2" => array("T2", ""), 
@@ -37,7 +38,8 @@
 					"Closed Cuica" => array(11, ""), 
 					"Cuica Open" => array(11, ""), 
 					"Cuica Closed" => array(11, ""), 
-					"Crash Cymbal" => array(4, "")
+					"Crash Cymbal" => array(4, ""),
+					"Bass Drums" => array(0, "")
 					);
 					
 	$part_drums = array();
@@ -61,22 +63,26 @@
 	foreach($xml -> {'part-list'} -> {'score-part'} as $score_part) {
 		$attr = $score_part -> attributes();
 		$part = $attr[0];
-		if ($score_part -> {'part-name'} == "Drumset") { $part_drums[] = $part; }
 		
 			foreach($score_part -> {'score-instrument'} as $score_instrument) {
 				$attr2 = $score_instrument -> attributes();
 				$name = $score_instrument -> {'instrument-name'};
 				if (isset($drums["$name"])) $drums["$name"][1] = (string) $attr2[0];
+				
+				if (!in_array($part, $part_drums)) { $part_drums[] = $part; }
 			}
 	}
 	
 	$tones = array();
+	$instruments = 0;
 
 	//Read the beats
 	foreach($xml -> part as $instrument) {
 		//Loop through this instrument
-		$notes = -1;
+		$instruments++;
 		foreach($instrument -> measure as $measure)	{
+			$last_x_pos = 0;
+			
 			//Loop through notes
 			foreach($measure -> note as $note) {
 			
@@ -85,24 +91,63 @@
 					if (whatever($attr[0], $drums)) {
 						//We need it
 						$length	= (string) $note -> duration;
-						$notes++;
+						
+						//Does note have attributes?
+						if ($note -> attributes() -> count() > 1) {
+							//Exporting attributes to variable
+							$attr2 = $note -> attributes();
+						}
 						
 						//Inserting notes
-						if (count($tones) - 1 < $notes) { $tones[] = array(0 => "", 1 => ""); }
+						if (!isset($tones[$instruments])) { $tones[$instruments] = array("", ""); }
+						
 						if(isset($note -> rest)) {
 							//This is a rest
 							//Insert
-							$tones[$notes] = array(0, $length);
+							$tones[$instruments][0] .= 0 + "\n";
+							$tones[$instruments][1] .= $length + "\n";
 							
+							//Rest diesn't have attributes
+							$last_x_pos = 0;
+						}
+						elseif(isset($attr2) && floatval($attr2[0]) == floatval($last_x_pos))	{
+							//Multi-beats
+							$whatever = whatever($attr[0], $drums);
+							
+							//Get last element of array
+							$beats = explode("\n", $tones[$instruments][0]);
+							$lengths = explode("\n", $tones[$instruments][1]);
+							
+							//Insert note
+							$bl = $beats[count($beats) - 1];
+							$ll = $lengths[count($lengths) - 1];
+							$char = $bl == "" && $ll == "" ? "" : ";";
+							
+							$beats[count($beats) - 1] = $bl + $char + $drums[$whatever[0]][0];
+							$lengths[count($lengths) - 1] = $ll + $char + $length;
+							
+							$tones[$instruments][0] = implode("\n", $beats);
+							$tones[$instruments][1] = implode("\n", $lengths);
 						}
 						else {
 							//Insert note
+							if (!isset($tones[$instruments][0])) { $tones[$instruments][0] = ""; } // Bug fixed!
 							$whatever = whatever($attr[0], $drums);
-							$char = strlen($tones[$notes][0]) > 0 ? ";" : "";
-							$tones[$notes][0] .= $char.$drums[$whatever[0]][0];
-							$tones[$notes][1] .= $char.$length;
+							$ti = $tones[$instruments][0];
+							$char = count($ti) - 1 == 0 || $ti[count($ti) - 1] == "" ? "" : "\n";
+							
+							$tones[$instruments][0] .= $char.$drums[$whatever[0]][0];
+							$tones[$instruments][1] .= $char.$length;
 							//$tones[$notes] = array($drums[$whatever[0]][0], $length);
 						}
+						
+						if (isset($attr2)) {
+							$last_x_pos = $attr2[0];
+						} else {
+							$last_x_pos = 0;
+						}
+					} else {
+						$last_x_pos = 0;
 					}
 				}
 			}
@@ -111,17 +156,26 @@
 	
 	//Create tmpput
 	$files = array();
+	$drums_fileName = array();
 	
 	if (count($tones) > 0) {
-		$files["instruments"] = fopen($path . "/txt/drumsInstruments.txt", "w");
-		$files["lengths"] = fopen($path . "/txt/drumsLengths.txt", "w");
-		
-		for($i = 0; $i < count($tones); $i++)	{
-			fwrite($files["instruments"], $tones[$i][0] . "\n");
-			fwrite($files["lengths"], $tones[$i][1] . "\n");
+		//Add notes to files
+		for ($i = 1; $i < count($tones); $i++) {
+			//Add files
+			$instrumentsFile = "drumsInstruments" + $i + ".txt";
+			$lengthsFile = "drumsLengths" + $i + ".txt";
+			
+			$drums_fileName[] = $instrumentsFile;
+			$drums_fileName[] = $lengthsFile;
+			
+			$files["instruments"] = fopen($path . "/txt/$instrumentsFile", "w");
+			$files["lengths"] = fopen($path . "/txt/$lengthsFile", "w");
+			
+			fwrite($files["instruments"], $tones[$i][0]);
+			fwrite($files["lengths"], $tones[$i][1]);
+			
+			fclose($files["instruments"]);
+			fclose($files["lengths"]);
 		}
-		
-		fclose($files["instruments"]);
-		fclose($files["lengths"]);
 	}
 ?>
