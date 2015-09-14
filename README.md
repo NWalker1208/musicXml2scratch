@@ -5,7 +5,7 @@ into text files which can be imported into a Scratch (see http://scratch.mit.edu
 from where they can just be played to your audience or even build a Synthesia, Guitar Hero,
 whatever-like game.
 
-This branch  is **UNSTABLE**. Use branch **html-master**.
+This branch  is **UNSTABLE**. Use branch [**html-master**](https://github.com/SzAmmi/musicXml2scratch/tree/html-master).
 
 Note: if You're uploading drums it may fail. 
 
