@@ -33,7 +33,7 @@ function drumsConvert() {
 											"Tom 5": [0, ""], 
 			"Hi-Hat Closed": [6, ""], 
 											"Tom 4": [0, ""], 
-											"Hi-Hat Pedal": [0, ""], 
+											"Hi-Hat Pedal": [5, ""], 
 			"Tom 3": ["T3", ""], 
 			"Hi-Hat Open": [5, ""], 
 			"Open Hi-Hat": [5, ""], 
@@ -176,12 +176,14 @@ function drumsConvert() {
 	if (tones.length > 0) {
 		// Add notes to files
 		for(i = 1; i < tones.length; i++)	{
+			if (typeof tones[i] !== "undefined") {
 			// Add files
 			instrumentsFile = "drumsInstruments" + i + ".txt";
 			lengthsFile = "drumsLengths" + i + ".txt";
 			
 			files[instrumentsFile] = tones[i][0];
 			files[lengthsFile] = tones[i][1];
+			}
 		}
 	}
 }
