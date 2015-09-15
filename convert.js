@@ -87,18 +87,20 @@ function convert() {
 	// files = {};
 	for (i = 1; i <= instruments; i++) {
 		for (x = 1; x < tones[i].length; x++) {
-			// Add files if don't exist
-			valuesFile = "values" + i + "hand" + x + ".txt";
-			lengthsFile = "lengths" + i + "hand" + x + ".txt";
-			if (typeof(files[valuesFile]) === "undefined") { files[valuesFile] = ""; }
-			if (typeof(files[lengthsFile]) === "undefined") { files[lengthsFile] = ""; }
-			
-			// Add notes to files
-			currentTones = tones[i][x];
-			
-			for (value of currentTones) {
-				files[valuesFile] += value[0] + "\n";
-				files[lengthsFile] += value[1] + "\n";
+			if (typeof tones[i] !== "undefined") {
+				// Add files if don't exist
+				valuesFile = "values" + i + "hand" + x + ".txt";
+				lengthsFile = "lengths" + i + "hand" + x + ".txt";
+				if (typeof(files[valuesFile]) === "undefined") { files[valuesFile] = ""; }
+				if (typeof(files[lengthsFile]) === "undefined") { files[lengthsFile] = ""; }
+				
+				// Add notes to files
+				currentTones = tones[i][x];
+				
+				for (value of currentTones) {
+					files[valuesFile] += value[0] + "\n";
+					files[lengthsFile] += value[1] + "\n";
+				}
 			}
 		}
 	}
@@ -108,11 +110,6 @@ function convert() {
 
 	for (index in files) {
 		zip.file(index, files[index]);
-	}
-
-	if (typeof(files["drumsInstruments.txt"]) !== "undefined") {
-		zip.file("drumsInstruments.txt", files["drumsInstruments.txt"]);
-		zip.file("drumsLengths.txt", files["drumsLengths.txt"]);
 	}
 
 	var content = zip.generate({type:"blob"});
