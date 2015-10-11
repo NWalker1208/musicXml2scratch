@@ -17,7 +17,7 @@ function indexOf(val, obj){
 
 String.prototype.containsAnyKeyOf = function(obj) {
 	for (key in obj) {
-		if (this.contains(key.toString())) return key.toString();
+		if (this.indexOf(key.toString()) > -1) return key.toString();
 	}
 	return -1;
 }

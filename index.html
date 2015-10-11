@@ -28,7 +28,7 @@
 		function start() {
 			if (fileContent == null) {
 				alert("File empty!");
-			} else if ($("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml" && $("#mime")[0].innerHTML !== "application/vnd.recordare.musicxml+xml") {
+			} else if ($("#mime")[0].innerHTML !== "mxl" && $("#mime")[0].innerHTML !== "xml") {
 				alert("Your file isn't a musicxml file!");
 			} else {
 				var new_zip = new JSZip();
@@ -37,7 +37,6 @@
 				
 				lgFile = Object.keys(new_zip.files)[1];
 				xml = new_zip.file(lgFile).asText();
-				
 				//Files checked, content read. Now convert!
 				drumsConvert();
 				convert();
