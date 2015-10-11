@@ -28,7 +28,7 @@
 		function start() {
 			if (fileContent == null) {
 				alert("File empty!");
-			} else if ($("#mime")[0].innerHTML !== "mxl" && $("#mime")[0].innerHTML !== "xml") {
+			} else if ($("#mime")[0].innerHTML.toLowerCase() !== "mxl" && $("#mime")[0].innerHTML.toLowerCase() !== "xml") {
 				alert("Your file isn't a musicxml file!");
 			} else {
 				var new_zip = new JSZip();
