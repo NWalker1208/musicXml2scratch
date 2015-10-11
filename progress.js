@@ -6,7 +6,6 @@ $(document).ready(function()	{
 		if(file)	{
 			$("#name").html(file.name);
 			$("#size").html((file.size * 0.0009765625).toFixed(2) + "kB");
-			console.log(file);
 			$("#mime").html(file.name.substr((file.name.lastIndexOf('.')+1)));
 		}
 		else	{
